@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
 import { colors, spacing, typography } from '../../theme';
+import { ensureBoolean, logPropValue } from '../../utils/propValidator';
 
 interface ButtonProps {
   title: string;
@@ -74,15 +75,23 @@ export const Button: React.FC<ButtonProps> = ({
     };
   };
 
+  const isDisabled = ensureBoolean(disabled, false) || ensureBoolean(loading, false);
+  
+  // Log para debug
+  if (__DEV__) {
+    logPropValue('Button', 'disabled', disabled);
+    logPropValue('Button', 'loading', loading);
+  }
+  
   return (
     <TouchableOpacity
       style={[
         getButtonStyle(),
-        (disabled || loading) && styles.disabled,
+        isDisabled && styles.disabled,
         style,
       ]}
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={isDisabled}
       activeOpacity={0.7}
     >
       {loading ? (

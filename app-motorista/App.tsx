@@ -1,92 +1,111 @@
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Button, Card } from './src/components';
-import { colors, spacing, typography } from './src/theme';
+import { ErrorBoundary } from './src/components/ErrorBoundary';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { SplashScreenSimplified } from './src/screens/SplashScreenSimplified';
+import { OnboardingScreenSimplified } from './src/screens/OnboardingScreenSimplified';
+import { LoginScreen } from './src/screens/LoginScreen';
+import { RegisterScreen } from './src/screens/RegisterScreen';
+import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
+import { HomeScreen } from './src/screens/HomeScreen';
+
+// Navegação manual sem NavigationContainer (temporário até resolver o problema)
+type Screen = 'splash' | 'onboarding' | 'login' | 'register' | 'forgotPassword' | 'home';
+
+const AppContent: React.FC = () => {
+  const { loading, hasSeenOnboarding, isAuthenticated } = useAuth();
+  const [currentScreen, setCurrentScreen] = useState<Screen>('splash');
+
+  // Mapear nomes de telas do React Navigation para nossos nomes
+  const mapScreenName = (screen: string): Screen => {
+    const mapping: Record<string, Screen> = {
+      'Login': 'login',
+      'Register': 'register',
+      'ForgotPassword': 'forgotPassword',
+      'login': 'login',
+      'register': 'register',
+      'forgotPassword': 'forgotPassword',
+      'home': 'home',
+    };
+    return mapping[screen] || 'login';
+  };
+
+  // Criar objeto de navegação mock
+  const navigation = {
+    navigate: (screen: string) => {
+      const mappedScreen = mapScreenName(screen);
+      setCurrentScreen(mappedScreen);
+    },
+  };
+
+  // Atualizar tela quando autenticação mudar
+  useEffect(() => {
+    if (!loading) {
+      const hasSeen = hasSeenOnboarding === true;
+      const isAuth = isAuthenticated === true;
+      
+      if (currentScreen === 'splash') {
+        // Delay do splash
+        setTimeout(() => {
+          if (!hasSeen) {
+            setCurrentScreen('onboarding');
+          } else if (!isAuth) {
+            setCurrentScreen('login');
+          } else {
+            setCurrentScreen('home');
+          }
+        }, 1000);
+      } else if (isAuth && currentScreen !== 'home') {
+        // Se autenticou, ir para home
+        setCurrentScreen('home');
+      } else if (!isAuth && (currentScreen === 'home')) {
+        // Se desautenticou, ir para login
+        setCurrentScreen('login');
+      }
+    }
+  }, [loading, hasSeenOnboarding, isAuthenticated]);
+
+  if (loading === true || currentScreen === 'splash') {
+    return <SplashScreenSimplified />;
+  }
+
+  // Garantir que são booleanos explícitos
+  const hasSeen = hasSeenOnboarding === true;
+  const isAuth = isAuthenticated === true;
+
+  // Renderizar tela atual
+  switch (currentScreen) {
+    case 'onboarding':
+      return <OnboardingScreenSimplified navigation={navigation} />;
+    case 'login':
+      return <LoginScreen navigation={navigation} />;
+    case 'register':
+      return <RegisterScreen navigation={navigation} />;
+    case 'forgotPassword':
+      return <ForgotPasswordScreen navigation={navigation} />;
+    case 'home':
+      return <HomeScreen />;
+    default:
+      if (!hasSeen) {
+        return <OnboardingScreenSimplified navigation={navigation} />;
+      } else if (!isAuth) {
+        return <LoginScreen navigation={navigation} />;
+      } else {
+        return <HomeScreen />;
+      }
+  }
+};
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        <StatusBar style="dark" />
-        <View style={styles.content}>
-          <Text style={styles.title}>GoNow</Text>
-          <Text style={styles.subtitle}>App Motorista</Text>
-          
-          <Card style={styles.card}>
-            <Text style={styles.cardTitle}>Bem-vindo!</Text>
-            <Text style={styles.cardText}>
-              Estrutura base configurada com tema preto e laranja.
-            </Text>
-          </Card>
-
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Botão Primário"
-              onPress={() => console.log('Botão pressionado')}
-              variant="primary"
-            />
-            <Button
-              title="Botão Secundário"
-              onPress={() => console.log('Botão pressionado')}
-              variant="secondary"
-              style={styles.button}
-            />
-            <Button
-              title="Botão Outline"
-              onPress={() => console.log('Botão pressionado')}
-              variant="outline"
-            />
-          </View>
-        </View>
-      </View>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <AppContent />
+          <StatusBar style="dark" />
+        </AuthProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.backgroundLight,
-  },
-  content: {
-    flex: 1,
-    padding: spacing.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: typography.sizes.xxxl,
-    fontWeight: typography.weights.bold,
-    color: colors.primary,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.medium,
-    color: colors.textSecondary,
-    marginBottom: spacing.xl,
-  },
-  card: {
-    width: '100%',
-    marginBottom: spacing.lg,
-  },
-  cardTitle: {
-    fontSize: typography.sizes.xl,
-    fontWeight: typography.weights.bold,
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  cardText: {
-    fontSize: typography.sizes.md,
-    color: colors.textSecondary,
-    lineHeight: 24,
-  },
-  buttonContainer: {
-    width: '100%',
-    gap: spacing.md,
-  },
-  button: {
-    marginTop: spacing.sm,
-  },
-});
