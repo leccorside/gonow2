@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  /* Cores principais GoNow - Preto e Laranja */
+  --color-primary: #FF6B35;
+  --color-primary-dark: #E55A2B;
+  --color-primary-light: #FF8C5A;
+  
+  --color-secondary: #000000;
+  --color-secondary-dark: #1A1A1A;
+  --color-secondary-light: #333333;
+  
+  /* Cores de fundo */
+  --color-background: #FFFFFF;
+  --color-background-dark: #F5F5F5;
+  --color-background-light: #FAFAFA;
+  
+  /* Cores de texto */
+  --color-text: #000000;
+  --color-text-secondary: #666666;
+  --color-text-light: #999999;
+  --color-text-white: #FFFFFF;
+  
+  /* Cores de status */
+  --color-success: #4CAF50;
+  --color-error: #F44336;
+  --color-warning: #FF9800;
+  --color-info: #2196F3;
+  
+  /* Cores de borda */
+  --color-border: #E0E0E0;
+  --color-border-light: #F0F0F0;
+  
+  /* Espaçamentos */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+}
+
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-text);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-background-light);
+  color: var(--color-text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Classes utilitárias do tema */
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
