@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography } from '../../theme';
+import { useTheme } from '../../theme/ThemeContext';
 import { ensureBoolean, logPropValue } from '../../utils/propValidator';
 
 interface InputProps extends TextInputProps {
@@ -19,6 +20,9 @@ export const Input: React.FC<InputProps> = ({
   multiline,
   ...props
 }) => {
+  const { theme } = useTheme();
+  const { colors } = theme;
+
   // Garantir que todas as props booleanas sejam explícitas
   const isSecure = ensureBoolean(secureTextEntry, false);
   const isEditable = ensureBoolean(editable, true);
@@ -30,23 +34,39 @@ export const Input: React.FC<InputProps> = ({
     logPropValue('Input', 'editable', editable);
     logPropValue('Input', 'multiline', multiline);
   }
-  
+
+  const inputStyles = {
+    borderColor: error ? colors.error : colors.border,
+    backgroundColor: colors.background,
+    color: colors.text,
+  };
+
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && (
+        <Text style={[styles.label, { color: colors.text }]}>
+          {label}
+        </Text>
+      )}
       <TextInput
         {...props}
         style={[
           styles.input,
-          error && styles.inputError,
+          inputStyles,
+          !isEditable && styles.disabled,
+          isMultiline && styles.multiline,
           style,
         ]}
-        placeholderTextColor={colors.textLight}
         secureTextEntry={isSecure}
         editable={isEditable}
         multiline={isMultiline}
+        placeholderTextColor={colors.textLight}
       />
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && (
+        <Text style={[styles.error, { color: colors.error }]}>
+          {error}
+        </Text>
+      )}
     </View>
   );
 };
@@ -58,25 +78,25 @@ const styles = StyleSheet.create({
   label: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.medium,
-    color: colors.text,
     marginBottom: spacing.xs,
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
+    paddingVertical: spacing.sm,
     fontSize: typography.sizes.md,
-    color: colors.text,
-    backgroundColor: colors.background,
+    minHeight: 48,
   },
-  inputError: {
-    borderColor: colors.error,
+  disabled: {
+    opacity: 0.6,
   },
-  errorText: {
-    fontSize: typography.sizes.xs,
-    color: colors.error,
+  multiline: {
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  error: {
+    fontSize: typography.sizes.sm,
     marginTop: spacing.xs,
   },
 });

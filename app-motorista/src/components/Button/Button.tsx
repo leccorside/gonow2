@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography } from '../../theme';
+import { useTheme } from '../../theme/ThemeContext';
 import { ensureBoolean, logPropValue } from '../../utils/propValidator';
 
 interface ButtonProps {
@@ -24,6 +25,9 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
+  const { theme } = useTheme();
+  const { colors } = theme;
+
   const getButtonStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
       paddingVertical: size === 'small' ? spacing.sm : size === 'large' ? spacing.md : spacing.sm + 2,
@@ -32,6 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
+      minHeight: size === 'small' ? 36 : size === 'large' ? 56 : 48,
     };
 
     if (variant === 'primary') {
@@ -39,72 +44,63 @@ export const Button: React.FC<ButtonProps> = ({
         ...baseStyle,
         backgroundColor: colors.primary,
       };
-    }
-
-    if (variant === 'secondary') {
+    } else if (variant === 'secondary') {
       return {
         ...baseStyle,
         backgroundColor: colors.secondary,
       };
+    } else {
+      return {
+        ...baseStyle,
+        backgroundColor: 'transparent',
+        borderWidth: 1,
+        borderColor: colors.primary,
+      };
     }
-
-    return {
-      ...baseStyle,
-      backgroundColor: 'transparent',
-      borderWidth: 2,
-      borderColor: colors.primary,
-    };
   };
 
   const getTextStyle = (): TextStyle => {
-    const baseStyle: TextStyle = {
+    const baseTextStyle: TextStyle = {
       fontSize: size === 'small' ? typography.sizes.sm : size === 'large' ? typography.sizes.lg : typography.sizes.md,
       fontWeight: typography.weights.semibold,
     };
 
     if (variant === 'outline') {
       return {
-        ...baseStyle,
+        ...baseTextStyle,
         color: colors.primary,
       };
+    } else {
+      return {
+        ...baseTextStyle,
+        color: colors.textWhite,
+      };
     }
-
-    return {
-      ...baseStyle,
-      color: colors.textWhite,
-    };
   };
 
-  const isDisabled = ensureBoolean(disabled, false) || ensureBoolean(loading, false);
-  
-  // Log para debug
-  if (__DEV__) {
-    logPropValue('Button', 'disabled', disabled);
-    logPropValue('Button', 'loading', loading);
-  }
-  
+  // Garantir que loading e disabled são booleanos
+  const loadingBool = ensureBoolean(loading);
+  const disabledBool = ensureBoolean(disabled);
+
+  // Log para debug (pode ser removido depois)
+  logPropValue('Button', 'loading', loadingBool);
+  logPropValue('Button', 'disabled', disabledBool);
+
   return (
     <TouchableOpacity
-      style={[
-        getButtonStyle(),
-        isDisabled && styles.disabled,
-        style,
-      ]}
+      style={[getButtonStyle(), (disabledBool || loadingBool) && { opacity: 0.6 }, style]}
       onPress={onPress}
-      disabled={isDisabled}
-      activeOpacity={0.7}
+      disabled={disabledBool || loadingBool}
+      activeOpacity={0.8}
     >
-      {loading ? (
-        <ActivityIndicator color={variant === 'outline' ? colors.primary : colors.textWhite} />
-      ) : (
-        <Text style={[getTextStyle(), textStyle]}>{title}</Text>
+      {loadingBool && (
+        <ActivityIndicator
+          size="small"
+          color={variant === 'outline' ? colors.primary : colors.textWhite}
+          style={{ marginRight: spacing.xs }}
+        />
       )}
+      <Text style={[getTextStyle(), textStyle]}>{title}</Text>
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  disabled: {
-    opacity: 0.5,
-  },
-});

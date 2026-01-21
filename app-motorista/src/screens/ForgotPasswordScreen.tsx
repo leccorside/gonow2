@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
 import { Button, Input } from '../components';
+import { useTheme } from '../theme/ThemeContext';
 
 interface ForgotPasswordScreenProps {
   navigation: any;
 }
 
 export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation }) => {
+  const { theme } = useTheme();
+  const { colors } = theme;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const styles = createStyles(colors);
 
   const handleRecover = async () => {
     if (!email) {
@@ -44,6 +49,9 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navi
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.backIcon}>←</Text>
+          </TouchableOpacity>
           <Text style={styles.title}>Recuperar Senha</Text>
           <Text style={styles.subtitle}>
             Digite seu email e enviaremos um link para redefinir sua senha
@@ -71,9 +79,9 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navi
 
           <TouchableOpacity
             onPress={() => navigation.navigate('Login')}
-            style={styles.backButton}
+            style={styles.loginLink}
           >
-            <Text style={styles.backText}>Voltar para o login</Text>
+            <Text style={styles.loginLinkText}>Voltar para Login</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -81,7 +89,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navi
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundLight,
@@ -91,14 +99,25 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   header: {
-    marginTop: spacing.xxl,
+    marginTop: spacing.xl,
     marginBottom: spacing.xl,
   },
-  title: {
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
+  backIcon: {
     fontSize: typography.sizes.xxl,
+    color: colors.text,
+  },
+  title: {
+    fontSize: typography.sizes.xxxl,
     fontWeight: typography.weights.bold,
     color: colors.text,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   subtitle: {
     fontSize: typography.sizes.md,
@@ -110,13 +129,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   recoverButton: {
-    marginTop: spacing.md,
-  },
-  backButton: {
     marginTop: spacing.lg,
-    alignItems: 'center',
   },
-  backText: {
+  loginLink: {
+    alignSelf: 'center',
+    marginTop: spacing.xl,
+  },
+  loginLinkText: {
     fontSize: typography.sizes.md,
     color: colors.primary,
     fontWeight: typography.weights.medium,

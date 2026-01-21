@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
 import { Button, Input } from '../components';
+import { useTheme } from '../theme/ThemeContext';
 
 interface ForgotPasswordScreenProps {
   navigation: any;
 }
 
 export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation }) => {
+  const { theme } = useTheme();
+  const { colors } = theme;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const styles = createStyles(colors);
 
   const handleRecover = async () => {
     if (!email) {
@@ -81,7 +86,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navi
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundLight,

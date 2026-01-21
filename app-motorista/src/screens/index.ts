@@ -4,3 +4,8 @@ export { LoginScreen } from './LoginScreen';
 export { RegisterScreen } from './RegisterScreen';
 export { ForgotPasswordScreen } from './ForgotPasswordScreen';
 export { HomeScreen } from './HomeScreen';
+export { ProfileScreen } from './ProfileScreen';
+export { SettingsScreen } from './SettingsScreen';
+export { TripHistoryScreen } from './TripHistoryScreen';
+export { TripActiveScreen } from './TripActiveScreen';
+export { EarningsScreen } from './EarningsScreen';

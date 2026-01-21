@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography } from '../../theme';
+import { useTheme } from '../../theme/ThemeContext';
 import { ensureBoolean, logPropValue } from '../../utils/propValidator';
 
 interface ButtonProps {
@@ -24,6 +25,9 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
+  const { theme } = useTheme();
+  const { colors } = theme;
+
   const getButtonStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
       paddingVertical: size === 'small' ? spacing.sm : size === 'large' ? spacing.md : spacing.sm + 2,
@@ -67,7 +71,7 @@ export const Button: React.FC<ButtonProps> = ({
         ...baseStyle,
         color: colors.primary,
       };
-    }
+    };
 
     return {
       ...baseStyle,

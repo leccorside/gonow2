@@ -1,14 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
 import { Button } from '../components';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../theme/ThemeContext';
 
 interface OnboardingScreenSimplifiedProps {
   navigation?: any;
 }
 
 export const OnboardingScreenSimplified: React.FC<OnboardingScreenSimplifiedProps> = ({ navigation }) => {
+  const { theme } = useTheme();
+  const { colors } = theme;
   const { setHasSeenOnboarding } = useAuth();
 
   const handleFinish = async () => {
@@ -17,6 +20,8 @@ export const OnboardingScreenSimplified: React.FC<OnboardingScreenSimplifiedProp
       navigation.navigate('login');
     }
   };
+
+  const styles = createStyles(colors);
 
   return (
     <View style={styles.container}>
@@ -34,7 +39,7 @@ export const OnboardingScreenSimplified: React.FC<OnboardingScreenSimplifiedProp
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,

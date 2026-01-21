@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
 import { Button, Input } from '../components';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../theme/ThemeContext';
 
 interface RegisterScreenProps {
   navigation: any;
 }
 
 export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
+  const { theme } = useTheme();
+  const { colors } = theme;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -16,6 +19,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+
+  const styles = createStyles(colors);
 
   const handleRegister = async () => {
     if (!name || !email || !phone || !password || !confirmPassword) {
@@ -57,77 +62,61 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Criar Conta</Text>
-          <Text style={styles.subtitle}>Passageiro</Text>
+        {/* Header Illustration Placeholder */}
+        <View style={styles.illustrationContainer}>
+          <Text style={styles.illustrationIcon}>🚕</Text>
         </View>
 
-        <View style={styles.form}>
-          <Input
-            label="Nome Completo"
-            placeholder="Seu nome completo"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-          />
+        {/* Title */}
+        <Text style={styles.title}>Welcome</Text>
 
-          <Input
-            label="Email"
-            placeholder="seu@email.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-          />
+        {/* Instruction */}
+        <Text style={styles.instruction}>
+          Enter your personal information
+        </Text>
 
-          <Input
-            label="Telefone"
-            placeholder="(11) 99999-9999"
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
+        {/* Name Surname Input */}
+        <Input
+          label="Name Surname"
+          placeholder="Enter name surname"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="words"
+        />
 
-          <Input
-            label="Senha"
-            placeholder="Mínimo 6 caracteres"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-            autoCapitalize="none"
-          />
+        {/* Email Input */}
+        <Input
+          label="Email"
+          placeholder="Enter email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+        />
 
-          <Input
-            label="Confirmar Senha"
-            placeholder="Digite a senha novamente"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry={true}
-            autoCapitalize="none"
-          />
+        {/* Save Button */}
+        <Button
+          title="Save"
+          onPress={handleRegister}
+          loading={loading}
+          variant="primary"
+          style={styles.saveButton}
+        />
 
-          <Button
-            title="Cadastrar"
-            onPress={handleRegister}
-            loading={loading}
-            variant="primary"
-            style={styles.registerButton}
-          />
-
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Já tem uma conta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginLink}>Entrar</Text>
-            </TouchableOpacity>
-          </View>
+        {/* Login Link */}
+        <View style={styles.loginContainer}>
+          <Text style={styles.loginText}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.loginLink}>Log In</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundLight,
@@ -135,27 +124,34 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: spacing.lg,
+    paddingTop: spacing.xxl,
   },
-  header: {
+  illustrationContainer: {
     alignItems: 'center',
-    marginTop: spacing.xl,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
+    height: 150,
+    justifyContent: 'center',
+  },
+  illustrationIcon: {
+    fontSize: 100,
   },
   title: {
-    fontSize: typography.sizes.xxl,
+    fontSize: typography.sizes.xxxl,
     fontWeight: typography.weights.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
+    color: colors.secondary,
+    textAlign: 'center',
+    marginBottom: spacing.md,
   },
-  subtitle: {
+  instruction: {
     fontSize: typography.sizes.md,
-    color: colors.textSecondary,
+    color: colors.text,
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
   },
-  form: {
-    flex: 1,
-  },
-  registerButton: {
+  saveButton: {
     marginTop: spacing.md,
+    marginBottom: spacing.xl,
   },
   loginContainer: {
     flexDirection: 'row',
@@ -168,7 +164,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: typography.sizes.md,
-    color: colors.primary,
+    color: colors.secondary,
     fontWeight: typography.weights.semibold,
   },
 });

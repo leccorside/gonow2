@@ -1,11 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export const SplashScreen: React.FC = () => {
+  const { theme } = useTheme();
+  const { colors } = theme;
+  
   // Garantir que size seja string explícita
   const indicatorSize: 'small' | 'large' = 'large';
-  const indicatorColor = colors.primary;
+  const indicatorColor = colors.textWhite;
+
+  const styles = createStyles(colors);
   
   return (
     <View style={styles.container}>
@@ -20,7 +26,7 @@ export const SplashScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primary,

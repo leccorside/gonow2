@@ -1,37 +1,45 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import { Button } from '../components';
 import { useAuth } from '../contexts/AuthContext';
 import { ensureBoolean, logPropValue } from '../utils/propValidator';
 
 const { width } = Dimensions.get('window');
 
-const slides = [
-  {
-    id: 1,
-    title: 'Bem-vindo ao GoNow',
-    description: 'A forma mais rápida e segura de se locomover pela cidade.',
-    color: colors.primary,
-  },
-  {
-    id: 2,
-    title: 'Viagens Rápidas',
-    description: 'Solicite uma corrida e chegue ao seu destino em minutos.',
-    color: colors.primaryDark,
-  },
-  {
-    id: 3,
-    title: 'Comece Agora',
-    description: 'Cadastre-se e comece a usar o GoNow hoje mesmo.',
-    color: colors.secondary,
-  },
-];
-
 export const OnboardingScreen: React.FC = () => {
+  const { theme } = useTheme();
+  const { colors } = theme;
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { setHasSeenOnboarding } = useAuth();
+
+  const slides = [
+    {
+      id: 1,
+      title: 'Select Destination',
+      description: 'Safety and comforts is our concerns',
+      color: colors.backgroundLight,
+      icon: '📍', // Mãos segurando smartphone com mapa
+    },
+    {
+      id: 2,
+      title: 'Get Your Taxi',
+      description: 'Safety and comforts is our concerns',
+      color: colors.backgroundLight,
+      icon: '🚕', // Taxi estacionado
+    },
+    {
+      id: 3,
+      title: 'Rate Your Trip',
+      description: 'Safety and comforts is our concerns',
+      color: colors.backgroundLight,
+      icon: '⭐', // Motorista com estrelas
+    },
+  ];
+
+  const styles = createStyles(colors);
 
   const handleScroll = (event: any) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -72,6 +80,13 @@ export const OnboardingScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      {/* Botão Skip no topo direito */}
+      <View style={styles.skipContainer}>
+        <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
+          <Text style={styles.skipText}>Skip →</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         ref={scrollViewRef}
         horizontal={isHorizontal}
@@ -82,6 +97,9 @@ export const OnboardingScreen: React.FC = () => {
       >
         {slides.map((slide) => (
           <View key={slide.id} style={[styles.slide, { backgroundColor: slide.color }]}>
+            <View style={styles.iconContainer}>
+              <Text style={styles.icon}>{slide.icon}</Text>
+            </View>
             <Text style={styles.title}>{slide.title}</Text>
             <Text style={styles.description}>{slide.description}</Text>
           </View>
@@ -90,6 +108,16 @@ export const OnboardingScreen: React.FC = () => {
 
       <View style={styles.footer}>
         <View style={styles.pagination}>
+          {currentIndex > 0 && (
+            <TouchableOpacity onPress={() => {
+              scrollViewRef.current?.scrollTo({
+                x: (currentIndex - 1) * width,
+                animated: true,
+              });
+            }} style={styles.arrowButton}>
+              <Text style={styles.arrow}>←</Text>
+            </TouchableOpacity>
+          )}
           {slides.map((_, index) => (
             <View
               key={index}
@@ -99,28 +127,10 @@ export const OnboardingScreen: React.FC = () => {
               ]}
             />
           ))}
-        </View>
-
-        <View style={styles.buttons}>
-          {currentIndex < slides.length - 1 ? (
-            <>
-              <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-                <Text style={styles.skipText}>Pular</Text>
-              </TouchableOpacity>
-              <Button
-                title="Próximo"
-                onPress={handleNext}
-                variant="secondary"
-                style={styles.nextButton}
-              />
-            </>
-          ) : (
-            <Button
-              title="Começar"
-              onPress={handleFinish}
-              variant="secondary"
-              style={styles.finishButton}
-            />
+          {currentIndex < slides.length - 1 && (
+            <TouchableOpacity onPress={handleNext} style={styles.arrowButton}>
+              <Text style={styles.arrow}>→</Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>
@@ -128,9 +138,24 @@ export const OnboardingScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.backgroundLight,
+  },
+  skipContainer: {
+    position: 'absolute',
+    top: 50,
+    right: spacing.lg,
+    zIndex: 10,
+  },
+  skipButton: {
+    padding: spacing.sm,
+  },
+  skipText: {
+    color: colors.secondary,
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.medium,
   },
   slide: {
     width,
@@ -139,62 +164,55 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: spacing.xl,
   },
+  iconContainer: {
+    marginBottom: spacing.xl,
+  },
+  icon: {
+    fontSize: 120,
+  },
   title: {
     fontSize: typography.sizes.xxxl,
     fontWeight: typography.weights.bold,
-    color: colors.textWhite,
+    color: colors.secondary,
     textAlign: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   description: {
-    fontSize: typography.sizes.lg,
-    color: colors.textWhite,
+    fontSize: typography.sizes.md,
+    color: colors.text,
     textAlign: 'center',
-    opacity: 0.9,
     paddingHorizontal: spacing.lg,
   },
   footer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: spacing.xl,
     left: 0,
     right: 0,
-    padding: spacing.lg,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: spacing.lg,
   },
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: spacing.lg,
+    alignItems: 'center',
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: colors.borderLight,
     marginHorizontal: 4,
   },
   dotActive: {
-    backgroundColor: colors.textWhite,
+    backgroundColor: colors.secondary,
     width: 24,
   },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  skipButton: {
+  arrowButton: {
     padding: spacing.sm,
+    marginHorizontal: spacing.sm,
   },
-  skipText: {
-    color: colors.textWhite,
-    fontSize: typography.sizes.md,
-    fontWeight: typography.weights.medium,
-  },
-  nextButton: {
-    flex: 1,
-    marginLeft: spacing.md,
-  },
-  finishButton: {
-    width: '100%',
+  arrow: {
+    fontSize: typography.sizes.xl,
+    color: colors.secondary,
+    fontWeight: typography.weights.bold,
   },
 });

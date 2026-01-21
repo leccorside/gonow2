@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography } from '../../theme';
+import { useTheme } from '../../theme/ThemeContext';
 import { ensureBoolean, logPropValue } from '../../utils/propValidator';
 
 interface InputProps extends TextInputProps {
@@ -19,6 +20,9 @@ export const Input: React.FC<InputProps> = ({
   multiline,
   ...props
 }) => {
+  const { theme } = useTheme();
+  const { colors } = theme;
+
   // Garantir que todas as props booleanas sejam explícitas
   const isSecure = ensureBoolean(secureTextEntry, false);
   const isEditable = ensureBoolean(editable, true);
@@ -30,53 +34,47 @@ export const Input: React.FC<InputProps> = ({
     logPropValue('Input', 'editable', editable);
     logPropValue('Input', 'multiline', multiline);
   }
-  
-  return (
-    <View style={[styles.container, containerStyle]}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <TextInput
-        {...props}
-        style={[
-          styles.input,
-          error && styles.inputError,
-          style,
-        ]}
-        placeholderTextColor={colors.textLight}
-        secureTextEntry={isSecure}
-        editable={isEditable}
-        multiline={isMultiline}
-      />
-      {error && <Text style={styles.errorText}>{error}</Text>}
-    </View>
-  );
-};
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: spacing.md,
-  },
-  label: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  input: {
+  const inputStyles = {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: error ? colors.error : colors.border,
     borderRadius: 8,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
     fontSize: typography.sizes.md,
     color: colors.text,
     backgroundColor: colors.background,
-  },
-  inputError: {
-    borderColor: colors.error,
-  },
-  errorText: {
-    fontSize: typography.sizes.xs,
-    color: colors.error,
-    marginTop: spacing.xs,
-  },
-});
+  };
+  
+  return (
+    <View style={[{ marginBottom: spacing.md }, containerStyle]}>
+      {label && (
+        <Text style={{
+          fontSize: typography.sizes.sm,
+          fontWeight: typography.weights.medium,
+          color: colors.text,
+          marginBottom: spacing.xs,
+        }}>
+          {label}
+        </Text>
+      )}
+      <TextInput
+        {...props}
+        style={[inputStyles, style]}
+        placeholderTextColor={colors.textLight}
+        secureTextEntry={isSecure}
+        editable={isEditable}
+        multiline={isMultiline}
+      />
+      {error && (
+        <Text style={{
+          fontSize: typography.sizes.xs,
+          color: colors.error,
+          marginTop: spacing.xs,
+        }}>
+          {error}
+        </Text>
+      )}
+    </View>
+  );
+};
